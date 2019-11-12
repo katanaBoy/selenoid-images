@@ -26,10 +26,6 @@ RUN \
 	    unzip \
 	    xvfb \
 	    libpulse0 \
-		libxcomposite1 \
-		libxcursor1 \
-		libxi6 \
-		libasound2 \
         fluxbox \
         x11vnc \
         feh \
@@ -49,7 +45,7 @@ COPY --from=go /devtools/devtools /usr/bin/
 # Android SDK
 ENV ANDROID_HOME /opt/android-sdk-linux
 ENV PATH /opt/android-sdk-linux/platform-tools:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/tools/bin:/opt/android-sdk-linux/emulator:$PATH
-ENV LD_LIBRARY_PATH ${ANDROID_HOME}/emulator/lib64:${ANDROID_HOME}/emulator/lib64/gles_swiftshader:${ANDROID_HOME}/emulator/lib64/qt/lib:${ANDROID_HOME}/emulator/lib64/vulkan:${LD_LIBRARY_PATH}
+ENV LD_LIBRARY_PATH ${ANDROID_HOME}/emulator/lib64:${ANDROID_HOME}/emulator/lib64/gles_swiftshader:${LD_LIBRARY_PATH}
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
 ARG ANDROID_DEVICE=""
@@ -66,9 +62,7 @@ RUN \
 	mkdir -p /opt/android-sdk-linux && \
 	unzip -q sdk-tools.zip -d /opt/android-sdk-linux && \
 	rm sdk-tools.zip && \
-	yes | sdkmanager --licenses
-
-RUN \
+	yes | sdkmanager --licenses && \
 	sdkmanager "emulator" "tools" "platform-tools" "$BUILD_TOOLS" "platforms;$PLATFORM" "$EMULATOR_IMAGE" && \
 	mksdcard "$SDCARD_SIZE"M sdcard.img && \
 	echo "no" | ( \
@@ -76,10 +70,7 @@ RUN \
 	    avdmanager create avd -n "$AVD_NAME" -k "$EMULATOR_IMAGE" --abi x86 --sdcard /sdcard.img \
     ) && \
 	ldconfig && \
-	( \
-	    resize2fs /root/.android/avd/$AVD_NAME.avd/userdata.img "$USERDATA_SIZE"M || \
-	    /opt/android-sdk-linux/emulator/qemu-img resize -f raw /root/.android/avd/$AVD_NAME.avd/userdata.img "$USERDATA_SIZE"M \
-    ) && \
+	resize2fs /root/.android/avd/$AVD_NAME.avd/userdata.img "$USERDATA_SIZE"M && \
 	mv /root/.android/avd/$AVD_NAME.avd/userdata.img /root/.android/avd/$AVD_NAME.avd/userdata-qemu.img && \
 	rm /opt/android-sdk-linux/system-images/$PLATFORM/$EMULATOR_IMAGE_TYPE/x86/userdata.img
 
