@@ -1,4 +1,4 @@
-FROM alpine:3.9
+FROM alpine:3.10
 
 RUN apk add -U alpine-sdk && adduser -g "" -D -G abuild selenoid
 USER selenoid
@@ -11,11 +11,11 @@ RUN cd /home/selenoid/aports/community/ffmpeg/ && \
     abuild build
 USER root
 
-FROM alpine:3.9
+FROM alpine:3.10
 
 RUN apk add -U x264-libs sdl2 libxcb libbz2 xset && \
     rm -rf /var/cache/apk/*
-COPY --from=0 /home/selenoid/aports/community/ffmpeg/src/ffmpeg-4.1.3/ffmpeg /usr/bin/ffmpeg
+COPY --from=0 /home/selenoid/aports/community/ffmpeg/src/ffmpeg-4.2.1/ffmpeg /usr/bin/ffmpeg
 
 COPY entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]

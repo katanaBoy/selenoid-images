@@ -1,4 +1,4 @@
-FROM golang:1.11 as go
+FROM golang:1.14 as go
 
 COPY xseld /xseld
 
@@ -21,6 +21,7 @@ RUN \
     apt update && \
     apt remove -y libcurl4 && \
     apt install -y apt-transport-https ca-certificates tzdata locales libcurl4 curl gnupg && \
+    DEBIAN_FRONTEND=noninteractive apt -y upgrade && \
     echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections && \
     echo 'UTC' | tee /etc/timezone && \
     dpkg-reconfigure -f noninteractive tzdata && \
@@ -37,12 +38,14 @@ RUN \
     fonts-thai-tlwg-ttf \
     fonts-ipafont-mincho \
     fonts-sahadeva \
+    fonts-noto-unhinted \
     fonts-noto-color-emoji \
     libfontconfig1 \
     libfontenc1 \
     libfreetype6 \
     libxfont2 \
     libxft2 \
+    libnss3-tools \
     xfonts-base \
     xfonts-encodings \
     xfonts-utils \
@@ -57,7 +60,7 @@ RUN \
     mkdir -p /var/lib/locales/supported.d/ && grep UTF-8 /usr/share/i18n/SUPPORTED > /var/lib/locales/supported.d/all && \
     locale-gen && update-locale && \
     fc-cache -f -v && \
-    adduser --system --home /home/selenium \
+    adduser --system --home /home/selenium --uid 106 \
     --ingroup nogroup --disabled-password --shell /bin/bash selenium && \
     mkdir -p /home/selenium/Downloads && \
     chown selenium:nogroup /home/selenium/Downloads && \
